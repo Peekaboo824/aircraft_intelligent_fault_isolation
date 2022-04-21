@@ -4,5 +4,7 @@ from django.urls import path, include
 from api import views
 urlpatterns = [
     path('cms/', views.CMS),
-    path('fr/',views.FR),
+    path('cms_confirm/',views.CMS_confirm),
+    # path('fr/',views.FR),
 ]
+
