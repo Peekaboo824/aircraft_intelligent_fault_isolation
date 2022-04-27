@@ -5,6 +5,6 @@ from api import views
 urlpatterns = [
     path('cms/', views.CMS),
     path('cms_confirm/',views.CMS_confirm),
-    # path('fr/',views.FR),
+    path('fr/',views.FR),
 ]
 
