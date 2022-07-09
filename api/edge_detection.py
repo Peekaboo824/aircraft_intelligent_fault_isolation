@@ -14,13 +14,17 @@ def edge_detection(img_path):
     image = cv2.resize(image, (int(image.shape[1] / ratio), int(image.shape[0] / ratio)))  # 缩放
     # print(image.shape)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # 将BGR格式转化为灰度图片
-    gray = cv2.GaussianBlur(gray, (3, 3), 0)  # 高斯滤波降噪
+    gray = cv2.GaussianBlur(gray, (9, 9), 0)  # 高斯滤波降噪
     edged = cv2.Canny(gray, 150, 10)  # 边缘检测
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    # edged=cv2.erode(edged, kernel)
+    edged = cv2.dilate(edged, kernel)
     # cv2.imshow('res', edged)
     # cv2.waitKey()
 
     contours, hierarchy = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = sorted(contours, key=cv2.contourArea, reverse=True)[:5]  # 面积前5大的轮廓
+    screenCnt = None
     for c in cnts:
         peri = cv2.arcLength(c, True)  # 轮廓的周长
         # c表示输入的点集，epsilon表示从原始轮廓到近似轮廓的最大距离，它是一个准确度参数

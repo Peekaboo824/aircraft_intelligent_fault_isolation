@@ -6,5 +6,6 @@ urlpatterns = [
     path('cms/', views.CMS),
     path('cms_confirm/',views.CMS_confirm),
     path('fr/',views.FR),
+    path('fr_confirm/',views.FR_confirm),
 ]
 
