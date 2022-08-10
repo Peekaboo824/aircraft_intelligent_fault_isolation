@@ -6,7 +6,7 @@ import numpy as np
 
 def edge_detection(img_path):
     image = cv2.imread(img_path)
-    MAXLEN = 1000
+    MAXLEN = 800
     ratio = 1
     maxLen = max(image.shape[0], image.shape[1])  # 图片长宽
     if maxLen > MAXLEN:
@@ -89,6 +89,12 @@ def edge_detection(img_path):
         dtype='float32')
     M = cv2.getPerspectiveTransform(rect, dst)
     warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight), flags=cv2.INTER_LANCZOS4)
+
+    ratio = 1
+    maxLen = max(warped.shape[0], warped.shape[1])  # 图片长宽
+    if maxLen < MAXLEN:
+        ratio = maxLen * 1.0 / MAXLEN
+    warped = cv2.resize(warped, (int(warped.shape[1] / ratio), int(warped.shape[0] / ratio)))  # 缩放
     # cv2.imshow('warped', warped)
     # cv2.waitKey()
     cv2.imwrite(img_path, warped)
