@@ -3,7 +3,7 @@ import os
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseRedirect
-from .models import Image
+# from .models import Image
 from .edge_detection import edge_detection
 from PaddleOCR.paddleocr import PaddleOCR
 import cv2
@@ -14,6 +14,7 @@ from django.http import JsonResponse
 import json
 import xlrd
 import re
+from yolo5_cornerdetection.detect import run
 
 cms_dataset = {
     'P-ACE4-1PACU1INTERFACEFAULT': [252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268,
@@ -539,8 +540,8 @@ def CAS(request):
                 img_path = "static/image/CAS/" + image.name
                 print(img_path)
 
+
                 edge_detection(img_path)
-                # run()
 
                 det_model_dir = "PaddleOCR/inference/ch_ppocr_server_v2.0_det_infer"
                 cls_model_dir = "PaddleOCR/inference/ch_ppocr_mobile_v2.0_cls_infer"
@@ -645,6 +646,16 @@ def CMS(request):
                         f.write(c)
                 img_path = "static/image/CMS/" + image.name
                 print(img_path)
+
+                state = run(source=img_path)
+                print("state=", state) #0正常 1缺角重传
+                if state == 1:
+                    res_all = {'state': 0}  # state 0 缺角
+                    res_all['res_all']=[]
+                    if os.path.exists(img_path):
+                        os.remove(img_path)
+                    return JsonResponse(res_all, json_dumps_params={"ensure_ascii": False})
+
                 edge_detection(img_path)
                 # run()
 
@@ -678,6 +689,7 @@ def CMS(request):
                 CMS_list.append({"id": i, "res": ocr_list})
 
             res_all = {"res_all": CMS_list}
+            res_all['state']=1
             print(res_all)
             if os.path.exists(img_path):
                 os.remove(img_path)
@@ -832,6 +844,15 @@ def FR(request):
                         f.write(c)
                 img_path = "static/image/FR/" + image.name
                 print(img_path)
+
+                state = run(source=img_path)
+                if state == 1:
+                    res_all = {'state': 0}
+                    res_all['res_all'] = []
+                    if os.path.exists(img_path):
+                        os.remove(img_path)
+                    return JsonResponse(res_all, json_dumps_params={"ensure_ascii": False})
+
                 edge_detection(img_path)
                 # run(source="static/image/FR")
 
@@ -1005,6 +1026,7 @@ def FR(request):
 
                 FR_list.append({"id": k, "res": result})
                 res_all = {"res_all": FR_list}
+                res_all['state'] = 1
                 print(res_all)
                 if os.path.exists(img_path):
                     os.remove(img_path)
